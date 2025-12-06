@@ -6,18 +6,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<!-- Icons -->
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon" sizes="57x57" href="favicon.png">
+<link rel="apple-touch-icon" sizes="114x114" href="favicon.png">
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="favicon.png">
+
 <style>
 body {margin:0; font-family:Helvetica, Arial, sans-serif; background:#e5e5e5;}
-#screen {width:95%; max-width:480px; margin:0 auto; min-height:100vh; background:#fdfdfd; box-shadow:0 0 10px #999; position:relative;}
+#screen {width:95%; max-width:480px; margin:0 auto; min-height:100vh; box-shadow:0 0 10px #999; position:relative;}
 .center {text-align:center;}
 .button {background:#007aff; color:white; padding:0.6em 1.2em; margin:0.5em; display:inline-block; border-radius:8px; cursor:pointer; font-size:1em;}
-#log {font-family:monospace; background:#000; color:#0f0; padding:10px; height:150px; overflow-y:scroll; margin:0.5em;}
+#log {font-family:monospace; background:#000; color:#0f0; padding:10px; height:150px; overflow-y:auto; margin:0.5em;}
 .tab {padding:0.5em; display:inline-block; background:#ddd; margin:2px; cursor:pointer; border-radius:5px;}
 .activeTab {background:#bbb; font-weight:bold;}
 textarea {width:95%; max-width:100%; box-sizing:border-box; margin:0.5em 0;}
 #appsList div {padding:5px; border:1px solid #ccc; margin:5px 0; cursor:pointer;}
 img#appIcon {width:64px; height:64px; margin-bottom:10px;}
+/* Retro Theme Simulation */
+.ios3 body {background:#c0c0c0;}
+.ios4 body {background:#e5e5e5;}
+.ios5 body {background:#f0f0f0;}
+.ios6 body {background:#fdfdfd;}
+.android-old body {background:#d0d0ff;}
 </style>
 </head>
 <body>
@@ -39,7 +51,7 @@ img#appIcon {width:64px; height:64px; margin-bottom:10px;}
 <!-- Fydiot App -->
 <div id="fydiotApp" style="display:none; padding:10px;">
   <div class="center">
-    <img id="appIcon" src="apple-touch-icon.png" alt="Fydiot Icon">
+    <img id="appIcon" src="favicon.png" alt="Fydiot Icon">
   </div>
   <h2 class="center">Fydiot Loader</h2>
   <div class="center">
@@ -60,15 +72,26 @@ img#appIcon {width:64px; height:64px; margin-bottom:10px;}
 </div>
 
 <script>
-// --- OS Detection ---
-var ua = navigator.userAgent;
-var isOldIOS = /iPhone|iPad|iPod/.test(ua) && /OS [3-6](_\d+)?/.test(ua);
-var isOldAndroid = /Android [1-5]\./.test(ua);
-var supported = isOldIOS || isOldAndroid || true;
+// --- OS Detection & Theme ---
+var ua = navigator.userAgent.toLowerCase();
+var isIOS = /iphone|ipad|ipod/.test(ua);
+var isAndroid = /android/.test(ua);
+var iosVersionMatch = ua.match(/os (\d+)_/);
+var iosVersion = iosVersionMatch ? parseInt(iosVersionMatch[1],10) : null;
+var androidVersionMatch = ua.match(/android (\d+)\./);
+var androidVersion = androidVersionMatch ? parseInt(androidVersionMatch[1],10) : null;
+var supported = (isIOS && iosVersion <= 6) || (isAndroid && androidVersion <=5) || true;
+
+if(isIOS){
+  if(iosVersion==3) document.body.className='ios3';
+  else if(iosVersion==4) document.body.className='ios4';
+  else if(iosVersion==5) document.body.className='ios5';
+  else if(iosVersion==6) document.body.className='ios6';
+} else if(isAndroid && androidVersion<=5){document.body.className='android-old';}
 
 document.getElementById('osCheck').innerText = supported ? 
   'Your device is supported. Click Start Jailbreak.' :
-  'Sorry, this device is not supported. Please use iOS 3-6 or Android 1-5.';
+  'Sorry, your device may not fully support FYDIOT.';
 
 // --- Fake Jailbreak ---
 document.getElementById('startBtn').onclick = function(){
@@ -113,7 +136,6 @@ var publicApps = [
   {name:"Bounce Ball", code:"alert('Bouncing Ball!')"},
   {name:"Click Counter", code:"var c=0; setInterval(function(){c++; console.log(c);},1000)"}
 ];
-
 function refreshApps(){
   var container = document.getElementById('appsList');
   container.innerHTML="";
@@ -141,13 +163,12 @@ function publishApp(){
   alert('App published!');
 }
 
-// --- Detect Save to Home Screen ---
+// --- Detect Home-Screen / Standalone ---
 function isInStandaloneMode(){
   if(window.navigator.standalone!==undefined){return window.navigator.standalone;}
   if(window.matchMedia){return window.matchMedia('(display-mode: standalone)').matches;}
   return false;
 }
-
 if(isInStandaloneMode()){
   document.getElementById('loader').style.display='none';
   document.getElementById('welcome').style.display='none';
