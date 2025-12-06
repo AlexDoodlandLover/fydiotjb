@@ -5,15 +5,14 @@
 <title>Fydiot WebExploit</title>
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <style>
-/* --- Common Styles --- */
 body {margin:0; font-family:Helvetica, Arial, sans-serif; background:#e5e5e5;}
-#screen {width:100%; max-width:480px; margin:0 auto; min-height:100vh; background:#fdfdfd; box-shadow:0 0 10px #999; position:relative;}
+#screen {width:95%; max-width:480px; margin:0 auto; min-height:100vh; background:#fdfdfd; box-shadow:0 0 10px #999; position:relative;}
 .center {text-align:center;}
-.button {background:#007aff; color:white; padding:10px 20px; margin:10px; display:inline-block; border-radius:8px; cursor:pointer; font-size:16px;}
+.button {background:#007aff; color:white; padding:0.6em 1.2em; margin:10px; display:inline-block; border-radius:8px; cursor:pointer; font-size:1em;}
 #log {font-family:monospace; background:#000; color:#0f0; padding:10px; height:150px; overflow-y:scroll; margin:10px;}
 .tab {padding:10px; display:inline-block; background:#ddd; margin:2px; cursor:pointer; border-radius:5px;}
 .activeTab {background:#bbb; font-weight:bold;}
-textarea {width:95%; margin:5px 0;}
+textarea {width:95%; max-width:100%; box-sizing:border-box; margin:5px 0;}
 #appsList div {padding:5px; border:1px solid #ccc; margin:5px 0; cursor:pointer;}
 </style>
 </head>
@@ -21,7 +20,7 @@ textarea {width:95%; margin:5px 0;}
 <div id="screen">
   <!-- Welcome / OS Check -->
   <div id="welcome" class="center">
-    <h1>Fydiot Simulated Jailbreak</h1>
+    <h1>Fydiot</h1>
     <p id="osCheck"></p>
     <div id="startBtn" class="button">Start Jailbreak</div>
   </div>
@@ -34,18 +33,21 @@ textarea {width:95%; margin:5px 0;}
 
   <!-- Fydiot App Loader -->
   <div id="fydiotApp" style="display:none; padding:10px;">
+    <div class="center">
+      <img src="favicon.ico" alt="Fydiot Icon" style="width:64px; height:64px; margin-bottom:10px;">
+    </div>
     <h2 class="center">Fydiot Loader</h2>
-    <div>
+    <div class="center">
       <span class="tab activeTab" onclick="switchTab('create')">Create App</span>
       <span class="tab" onclick="switchTab('discover')">Discover Apps</span>
     </div>
-    <div id="create">
+    <div id="create" style="margin-top:10px;">
       <h3>Block Coding Editor</h3>
       <textarea id="code" rows="10"></textarea>
       <div class="button" onclick="runApp()">Run App</div>
       <div class="button" onclick="publishApp()">Publish App</div>
     </div>
-    <div id="discover" style="display:none;">
+    <div id="discover" style="display:none; margin-top:10px;">
       <h3>Public Repository</h3>
       <div id="appsList"></div>
     </div>
@@ -57,7 +59,7 @@ textarea {width:95%; margin:5px 0;}
 var ua = navigator.userAgent;
 var isOldIOS = /iPhone|iPad|iPod/.test(ua) && /OS [3-6](_\d+)?/.test(ua);
 var isOldAndroid = /Android [1-5]\./.test(ua);
-var supported = isOldIOS || isOldAndroid || true; // allow modern devices
+var supported = isOldIOS || isOldAndroid || true; // modern fallback
 
 document.getElementById('osCheck').innerText = supported ? 
   'Your device is supported. Click Start Jailbreak.' :
@@ -136,9 +138,13 @@ function publishApp(){
   alert('App published!');
 }
 
-// --- Detect Save to Home Screen ---
+// --- Detect Save to Home Screen (Retro + Modern) ---
 function isInStandaloneMode(){
-  return (window.navigator.standalone!==undefined && window.navigator.standalone);
+  // Old iOS / Android
+  if(window.navigator.standalone!==undefined){return window.navigator.standalone;}
+  // Modern devices
+  if(window.matchMedia){return window.matchMedia('(display-mode: standalone)').matches;}
+  return false;
 }
 
 if(isInStandaloneMode()){
