@@ -1,251 +1,199 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>FYDIOT WebExploit</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- ICONS (you already have favicon.ico) -->
-<link rel="shortcut icon" href="favicon.ico">
-<link rel="apple-touch-icon" href="favicon.ico">
-
+<meta charset="UTF-8">
+<title>Fydiot WebExploit</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
 <style>
-/* ============================================================
-   IOS 6 / EVASION STYLE — Slightly tacky for realism
-   ============================================================ */
-
-body {
-    margin: 0;
-    padding: 0;
-    background: #e4e4e4 url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQI12P4//8/AwAI/AL+2j04NQAAAABJRU5ErkJggg==') repeat;
-    font-family: "Helvetica Neue", Helvetica, Arial;
-    -webkit-user-select: none;
-}
-
-#nav {
-    background: -webkit-gradient(linear, left top, left bottom, from(#c7d2e1), to(#9cb0c8));
-    padding: 10px 0;
+  body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: #e5e5e5;
+    margin:0;
+    padding:0;
+  }
+  #screen {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    background: #fdfdfd;
+    min-height: 100vh;
+    box-shadow: 0 0 10px #999;
+    position: relative;
+  }
+  .center {
     text-align: center;
-    font-size: 20px;
-    font-weight: 600;
-    border-bottom: 1px solid #7c8aa1;
-}
-
-#container {
-    margin: 20px;
-    padding: 15px;
-    background: white;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-}
-
-.button {
-    display: inline-block;
-    padding: 12px 25px;
-    background: -webkit-gradient(linear, left top, left bottom, from(#6da9fc), to(#3b6fd8));
+  }
+  .button {
+    background: #007aff;
     color: white;
-    border-radius: 10px;
-    font-size: 18px;
-    font-weight: bold;
-    border: 1px solid #224a99;
-    text-align: center;
-    margin-top: 15px;
-}
-
-.button:active {
-    background: -webkit-gradient(linear, left top, left bottom, from(#3b6fd8), to(#6da9fc));
-}
-
-#terminal {
-    background: #111;
+    padding: 10px 20px;
+    margin: 10px;
+    display: inline-block;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  #log {
+    font-family: monospace;
+    background: #000;
     color: #0f0;
     padding: 10px;
-    margin-top: 15px;
     height: 200px;
-    overflow-y: auto;
-    font-family: monospace;
-    font-size: 13px;
-    border-radius: 6px;
-    border: 1px solid #333;
-}
-
-.hidden { display: none; }
-
-/* ============================================================
-   FYDIOT LOADER APP MODE (after installed)
-   ============================================================ */
-
-#loader-app {
-    display: none;
-    padding: 15px;
-}
-
-#app-title {
-    font-size: 26px;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-.app-button {
-    display: block;
-    background: #f0f0f0;
-    border: 1px solid #ccc;
-    padding: 12px;
-    margin: 10px 0;
-    border-radius: 8px;
-    font-size: 18px;
-}
-
-#editor, #run-area {
-    display: none;
-    border: 1px solid #aaa;
-    background: #fff;
+    overflow-y: scroll;
+    margin: 10px;
+  }
+  #loader {
+    display:none;
+  }
+  #fydiotApp {
+    display:none;
+    padding:10px;
+  }
+  .tab {
     padding: 10px;
-    margin-top: 15px;
-    min-height: 200px;
-    border-radius: 8px;
-    font-family: monospace;
-}
-
+    display:inline-block;
+    background:#ddd;
+    margin:2px;
+    cursor:pointer;
+    border-radius:5px;
+  }
+  .activeTab {
+    background:#bbb;
+    font-weight:bold;
+  }
+  #repository {
+    display:none;
+    margin-top:10px;
+  }
+  #appsList div {
+    padding:5px;
+    border:1px solid #ccc;
+    margin:5px 0;
+    cursor:pointer;
+  }
 </style>
 </head>
 <body>
+<div id="screen">
+  <div id="welcome" class="center">
+    <h1>Fydiot Simulated Jailbreak</h1>
+    <p id="osCheck"></p>
+    <div id="startBtn" class="button">Start Jailbreak</div>
+  </div>
 
-<div id="nav">FYDIOT WebExploit</div>
+  <div id="loader">
+    <h2 class="center">Initializing...</h2>
+    <div id="log"></div>
+  </div>
 
-<!-- ============================================================
-     FAKE JAILBREAK INSTALL SCREENS
-     ============================================================ -->
-
-<div id="container">
-
-    <div id="screen-welcome">
-        <h2>Welcome</h2>
-        <p>This utility will install the FYDIOT sandbox environment.<br>
-        Compatible with iOS 3 – iOS 6 or any browser with “Add to Home Screen.”</p>
-        <a class="button" href="#" onclick="startCheck();return false;">Begin</a>
+  <div id="fydiotApp">
+    <h2 class="center">Fydiot Loader</h2>
+    <div>
+      <span class="tab activeTab" onclick="switchTab('create')">Create App</span>
+      <span class="tab" onclick="switchTab('discover')">Discover Apps</span>
     </div>
-
-    <div id="screen-check" class="hidden">
-        <h2>Checking Device…</h2>
-        <p>Performing system diagnostics…</p>
-        <div id="terminal"></div>
+    <div id="create">
+      <h3>Block Coding Editor</h3>
+      <textarea id="code" rows="10" style="width:100%;"></textarea>
+      <div class="button" onclick="runApp()">Run App</div>
     </div>
-
-    <div id="screen-complete" class="hidden">
-        <h2>Complete</h2>
-        <p>Your FYDIOT environment payload is prepared.</p>
-        <p>Tap the button below, then choose:<br><b>“Add to Home Screen”</b></p>
-        <a class="button" href="#" onclick="finish();return false;">Install Loader</a>
+    <div id="discover">
+      <h3>Public Repository</h3>
+      <div id="appsList"></div>
     </div>
-
-</div>
-
-<!-- ============================================================
-     STANDALONE FYDIOT LOADER APP (when saved to Home Screen)
-     ============================================================ -->
-
-<div id="loader-app">
-    <div id="app-title">FYDIOT Loader</div>
-
-    <div class="app-button" onclick="openEditor();">Create New App</div>
-    <div class="app-button" onclick="openLibrary();">Browse Apps</div>
-
-    <div id="editor">
-        <h3>Block Editor</h3>
-        <p>(Basic prototype — works on old Safari.)</p>
-        <textarea id="code" style="width:100%;height:150px;">// drag blocks? old Safari can't. So enter code-like blocks.</textarea>
-        <div class="button" onclick="runApp();">Run</div>
-    </div>
-
-    <div id="run-area">
-        <h3>App Output:</h3>
-        <div id="output"></div>
-    </div>
+  </div>
 </div>
 
 <script>
-// ============================================================
-// Ancient ES3 JavaScript — compatible with iOS 3–6 Safari
-// ============================================================
+// OS Detection
+var ua = navigator.userAgent;
+var isOldIOS = /iPhone|iPad|iPod/.test(ua) && /OS [3-6](_\d+)?/.test(ua);
+var isOldAndroid = /Android [1-5]\./.test(ua);
+var supported = isOldIOS || isOldAndroid;
 
-/* Detect "standalone" mode (Add to Home Screen) */
-if (window.navigator.standalone) {
-    document.getElementById("container").style.display = "none";
-    document.getElementById("loader-app").style.display = "block";
+document.getElementById('osCheck').innerText = supported ? 
+  'Your device is supported. Click Start Jailbreak.' :
+  'Sorry, this device is not supported. Please use iOS 3-6 or Android 1-5.';
+
+// Fake Jailbreak
+document.getElementById('startBtn').onclick = function(){
+  if(!supported) return;
+  document.getElementById('welcome').style.display='none';
+  document.getElementById('loader').style.display='block';
+  var log = document.getElementById('log');
+  var steps = [
+    "Scanning device...",
+    "Bypassing security protocols...",
+    "Injecting virtual payload...",
+    "Overwriting system files...",
+    "Optimizing kernel...",
+    "Finalizing jailbreak..."
+  ];
+  var i=0;
+  var interval = setInterval(function(){
+    if(i<steps.length){
+      log.innerHTML += steps[i] + "<br>";
+      log.scrollTop = log.scrollHeight;
+      i++;
+    } else {
+      clearInterval(interval);
+      log.innerHTML += "<b>Jailbreak Complete! Save to Home Screen to load Fydiot.</b>";
+    }
+  },1500);
+};
+
+// App Tabs
+function switchTab(tab){
+  document.getElementById('create').style.display='none';
+  document.getElementById('discover').style.display='none';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('activeTab'));
+  document.querySelector('.tab[onclick="switchTab(\''+tab+'\')"]').classList.add('activeTab');
+  document.getElementById(tab).style.display='block';
 }
 
-/* Fake jailbreak logs */
-var logs = [
-    "Initializing WebExploit engine…",
-    "Connecting to localhost…",
-    "Loading offsets for iOS build…",
-    "Analyzing kernel task port…",
-    "Checking code-signing enforcement…",
-    "Scanning /private/var/mobile…",
-    "Verifying sandbox escape vector…",
-    "Injecting bootstrap payload…",
-    "Patching entitlement table…",
-    "Rebuilding launchd profile…",
-    "Signing components…",
-    "Finalizing payload…",
-    "Complete."
+// Simple app repository
+var publicApps = [
+  {name:"Bounce Ball", code:"alert('Bouncing Ball!')"},
+  {name:"Click Counter", code:"var c=0; setInterval(()=>{c++; console.log(c);},1000)"}
 ];
 
-var logIndex = 0;
-var terminal;
-
-function startCheck() {
-    document.getElementById("screen-welcome").className = "hidden";
-    document.getElementById("screen-check").className = "";
-    terminal = document.getElementById("terminal");
-    nextLog();
-}
-
-function nextLog() {
-    if (logIndex >= logs.length) {
-        setTimeout(showComplete, 700);
-        return;
+function refreshApps(){
+  var container = document.getElementById('appsList');
+  container.innerHTML="";
+  publicApps.forEach((app,i)=>{
+    var div = document.createElement('div');
+    div.innerText = app.name;
+    div.onclick = function(){
+      eval(app.code);
     }
-    terminal.innerHTML += "> " + logs[logIndex] + "<br>";
-    terminal.scrollTop = terminal.scrollHeight;
-    logIndex++;
-    setTimeout(nextLog, 400 + Math.floor(Math.random() * 1000));
+    container.appendChild(div);
+  });
 }
 
-function showComplete() {
-    document.getElementById("screen-check").className = "hidden";
-    document.getElementById("screen-complete").className = "";
+refreshApps();
+
+// Run custom app
+function runApp(){
+  var code = document.getElementById('code').value;
+  try{
+    eval(code);
+    alert('App running!');
+  } catch(e){
+    alert('Error in app: '+e);
+  }
 }
 
-function finish() {
-    alert("To finish installation:\n\n1. Tap the Share button\n2. Select 'Add to Home Screen'\n3. Open the app icon");
+// Detect if saved to home screen
+function isInStandaloneMode() {
+  return (window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone;
 }
 
-/* Loader App Logic */
-
-function openEditor() {
-    document.getElementById("editor").style.display = "block";
-    document.getElementById("run-area").style.display = "none";
-}
-
-function openLibrary() {
-    alert("User-made app library will appear here.\n(Prototype feature — addable later.)");
-}
-
-function runApp() {
-    var code = document.getElementById("code").value;
-    document.getElementById("run-area").style.display = "block";
-    document.getElementById("output").innerHTML = escapeHTML(code);
-}
-
-/* Old Safari safe escape */
-function escapeHTML(t) {
-    return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+if(isInStandaloneMode()){
+  document.getElementById('loader').style.display='none';
+  document.getElementById('welcome').style.display='none';
+  document.getElementById('fydiotApp').style.display='block';
 }
 
 </script>
-
 </body>
 </html>
