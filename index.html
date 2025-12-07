@@ -1,179 +1,196 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Fydiot</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<!-- Icons -->
+<title>FYDIOT 2.0</title>
 <link rel="icon" href="favicon.ico" type="image/x-icon">
-<link rel="apple-touch-icon" sizes="57x57" href="favicon.png">
-<link rel="apple-touch-icon" sizes="114x114" href="favicon.png">
-<link rel="apple-touch-icon-precomposed" sizes="114x114" href="favicon.png">
-
 <style>
-body {margin:0; font-family:Helvetica, Arial, sans-serif; background:#e5e5e5;}
-#screen {width:95%; max-width:480px; margin:0 auto; min-height:100vh; box-shadow:0 0 10px #999; position:relative;}
-.center {text-align:center;}
-.button {background:#007aff; color:white; padding:0.6em 1.2em; margin:0.5em; display:inline-block; border-radius:8px; cursor:pointer; font-size:1em;}
-#log {font-family:monospace; background:#000; color:#0f0; padding:10px; height:150px; overflow-y:auto; margin:0.5em;}
-.tab {padding:0.5em; display:inline-block; background:#ddd; margin:2px; cursor:pointer; border-radius:5px;}
-.activeTab {background:#bbb; font-weight:bold;}
-textarea {width:95%; max-width:100%; box-sizing:border-box; margin:0.5em 0;}
-#appsList div {padding:5px; border:1px solid #ccc; margin:5px 0; cursor:pointer;}
-img#appIcon {width:64px; height:64px; margin-bottom:10px;}
-/* Retro Theme Simulation */
-.ios3 body {background:#c0c0c0;}
-.ios4 body {background:#e5e5e5;}
-.ios5 body {background:#f0f0f0;}
-.ios6 body {background:#fdfdfd;}
-.android-old body {background:#d0d0ff;}
+body{font-family:sans-serif;margin:0;background:#f2f2f2;display:flex;flex-direction:column;height:100vh;}
+header{background:#8B4513;color:white;padding:10px;text-align:center;font-size:24px;}
+#container{display:flex;flex:1;overflow:hidden;}
+#repo{flex:1;padding:10px;overflow-y:auto;background:#e6e6e6;display:flex;flex-wrap:wrap;gap:10px;}
+.app{background:white;border-radius:8px;width:150px;text-align:center;padding:10px;box-shadow:0 0 5px rgba(0,0,0,0.2);cursor:pointer;}
+.app img{width:64px;height:64px;}
+#editor{flex:1;padding:10px;background:#fff;margin:10px;border-radius:8px;box-shadow:0 0 5px rgba(0,0,0,0.2);display:flex;flex-direction:column;}
+#editor h3{margin-top:0;}
+#toolbox{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap;}
+.block{padding:5px 10px;background:#8B4513;color:white;border-radius:5px;cursor:pointer;}
+#canvas{flex:1;padding:5px;background:#f9f9f9;overflow:auto;border:1px solid #ccc;margin-bottom:10px;position:relative;}
+.canvas-block{background:#ddd;padding:5px;margin:5px 0;border-radius:5px;cursor:move;position:absolute;}
+#modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:1000;}
+#modal iframe{width:90%;height:80%;border:none;border-radius:8px;background:white;}
+#exportImport{margin-top:10px;}
+#exportImport textarea{width:100%;height:80px;}
+#addTip{position:fixed;bottom:0;width:100%;background:#ffcc00;color:#000;padding:10px;text-align:center;font-weight:bold;display:none;z-index:999;}
 </style>
 </head>
 <body>
-<div id="screen">
-
-<!-- Welcome -->
-<div id="welcome" class="center">
-  <h1>Fydiot</h1>
-  <p id="osCheck"></p>
-  <div id="startBtn" class="button">Start Jailbreak</div>
-</div>
-
-<!-- Loader -->
-<div id="loader" style="display:none;">
-  <h2 class="center">Initializing...</h2>
-  <div id="log"></div>
-</div>
-
-<!-- Fydiot App -->
-<div id="fydiotApp" style="display:none; padding:10px;">
-  <div class="center">
-    <img id="appIcon" src="favicon.png" alt="Fydiot Icon">
-  </div>
-  <h2 class="center">Fydiot Loader</h2>
-  <div class="center">
-    <span class="tab activeTab" onclick="switchTab('create')">Create App</span>
-    <span class="tab" onclick="switchTab('discover')">Discover Apps</span>
-  </div>
-  <div id="create" style="margin-top:10px;">
-    <h3>Block Coding Editor</h3>
-    <textarea id="code" rows="10"></textarea>
-    <div class="button" onclick="runApp()">Run App</div>
-    <div class="button" onclick="publishApp()">Publish App</div>
-  </div>
-  <div id="discover" style="display:none; margin-top:10px;">
-    <h3>Public Repository</h3>
-    <div id="appsList"></div>
+<header>FYDIOT 2.0</header>
+<div id="container">
+  <div id="repo"></div>
+  <div id="editor">
+    <h3>Create New App (Drag & Drop Chaos)</h3>
+    <div id="toolbox">
+      <div class="block" data-type="text">Text</div>
+      <div class="block" data-type="button">Button</div>
+      <div class="block" data-type="image">Image</div>
+      <div class="block" data-type="script">Script</div>
+      <div class="block" data-type="caillou">Robot Caillou</div>
+    </div>
+    <div id="canvas"></div>
+    <input type="text" id="appName" placeholder="App Name">
+    <input type="text" id="appIcon" placeholder="App Icon URL (optional)">
+    <button id="saveApp">Save App</button>
+    <div id="exportImport">
+      <button id="exportRepo">Export Repo JSON</button>
+      <button id="importRepo">Import Repo JSON</button>
+      <textarea id="repoJSON" placeholder="Paste JSON here"></textarea>
+    </div>
   </div>
 </div>
+
+<div id="addTip">
+  Press the icon and then 'Add to Home Screen' to actually use FYDIOT and stop being a fydiot!
+</div>
+
+<div id="modal">
+  <iframe id="appFrame"></iframe>
 </div>
 
 <script>
-// --- OS Detection & Theme ---
-var ua = navigator.userAgent.toLowerCase();
-var isIOS = /iphone|ipad|ipod/.test(ua);
-var isAndroid = /android/.test(ua);
-var iosVersionMatch = ua.match(/os (\d+)_/);
-var iosVersion = iosVersionMatch ? parseInt(iosVersionMatch[1],10) : null;
-var androidVersionMatch = ua.match(/android (\d+)\./);
-var androidVersion = androidVersionMatch ? parseInt(androidVersionMatch[1],10) : null;
-var supported = (isIOS && iosVersion <= 6) || (isAndroid && androidVersion <=5) || true;
-
-if(isIOS){
-  if(iosVersion==3) document.body.className='ios3';
-  else if(iosVersion==4) document.body.className='ios4';
-  else if(iosVersion==5) document.body.className='ios5';
-  else if(iosVersion==6) document.body.className='ios6';
-} else if(isAndroid && androidVersion<=5){document.body.className='android-old';}
-
-document.getElementById('osCheck').innerText = supported ? 
-  'Your device is supported. Click Start Jailbreak.' :
-  'Sorry, your device may not fully support FYDIOT.';
-
-// --- Fake Jailbreak ---
-document.getElementById('startBtn').onclick = function(){
-  if(!supported) return;
-  document.getElementById('welcome').style.display='none';
-  document.getElementById('loader').style.display='block';
-  var log = document.getElementById('log');
-  var steps = [
-    "Scanning device...",
-    "Bypassing security protocols...",
-    "Injecting virtual payload...",
-    "Overwriting system files...",
-    "Optimizing kernel...",
-    "Finalizing jailbreak..."
-  ];
-  var i=0;
-  var interval = setInterval(function(){
-    if(i<steps.length){
-      log.innerHTML += steps[i]+"<br>";
-      log.scrollTop = log.scrollHeight;
-      i++;
-    } else {
-      clearInterval(interval);
-      log.innerHTML += "<b>Jailbreak Complete! Save to Home Screen to load Fydiot.</b>";
+// Repo system with favicon as default icon
+let repo = JSON.parse(localStorage.getItem('fydiotRepo')) || {
+  name: "FYDIOT Chaos Repo",
+  apps: [
+    {
+      name: "Tiny Game",
+      icon: "favicon.ico",
+      description: "Tiny chaos",
+      html: "<!DOCTYPE html><html><body><h1>CHAOS!</h1><button onclick='alert(\"BAM!\")'>Click</button></body></html>"
     }
-  },1500);
+  ]
 };
 
-// --- Tab Switch ---
-function switchTab(tab){
-  document.getElementById('create').style.display='none';
-  document.getElementById('discover').style.display='none';
-  var tabs = document.getElementsByClassName('tab');
-  for(var i=0;i<tabs.length;i++){tabs[i].className='tab';}
-  var activeTab = document.querySelector(".tab[onclick='switchTab(\""+tab+"\")']");
-  if(activeTab){activeTab.className='tab activeTab';}
-  document.getElementById(tab).style.display='block';
+function renderRepo() {
+  const repoDiv = document.getElementById('repo');
+  repoDiv.innerHTML = '';
+  repo.apps.forEach((app, index) => {
+    const div = document.createElement('div');
+    div.className = 'app';
+    div.innerHTML = `<img src="${app.icon||'favicon.ico'}"><h4>${app.name}</h4><p>${app.description||''}</p>`;
+    div.onclick = () => openApp(index);
+    repoDiv.appendChild(div);
+  });
 }
 
-// --- Repository ---
-var publicApps = [
-  {name:"Bounce Ball", code:"alert('Bouncing Ball!')"},
-  {name:"Click Counter", code:"var c=0; setInterval(function(){c++; console.log(c);},1000)"}
-];
-function refreshApps(){
-  var container = document.getElementById('appsList');
-  container.innerHTML="";
-  for(var i=0;i<publicApps.length;i++){
-    var app = publicApps[i];
-    var div = document.createElement('div');
-    div.innerText = app.name;
-    div.onclick = (function(code){return function(){eval(code);};})(app.code);
-    container.appendChild(div);
+function openApp(index){
+  const app = repo.apps[index];
+  const modal = document.getElementById('modal');
+  const iframe = document.getElementById('appFrame');
+  iframe.srcdoc = app.html;
+  modal.style.display = 'flex';
+}
+
+document.getElementById('modal').onclick = e => {
+  if(e.target.id === 'modal') e.target.style.display = 'none';
+};
+
+// Drag & Drop blocks
+const toolbox=document.getElementById('toolbox');
+const canvas=document.getElementById('canvas');
+toolbox.querySelectorAll('.block').forEach(block=>{
+  block.onclick=()=>{
+    const type=block.dataset.type;
+    let el=document.createElement('div');
+    el.className='canvas-block';
+    el.dataset.type=type;
+    el.style.top=Math.random()*200+'px';
+    el.style.left=Math.random()*200+'px';
+    el.draggable=true;
+    switch(type){
+      case 'text': el.innerHTML='<input placeholder="Text">'; break;
+      case 'button': el.innerHTML='<input placeholder="Button Text"><input placeholder="alert JS code">'; break;
+      case 'image': el.innerHTML='<input placeholder="Image URL">'; break;
+      case 'script': el.innerHTML='<textarea placeholder="JavaScript"></textarea>'; break;
+      case 'caillou': el.innerHTML='<img src="https://i.imgur.com/RobotCaillou.png" width="64"><button onclick="alert(\'Beep Boop! Robot Caillou!\')">Activate</button>'; break;
+    }
+    el.addEventListener('dragstart',dragStart);
+    canvas.appendChild(el);
   }
-}
-refreshApps();
+});
 
-// --- Run / Publish ---
-function runApp(){
-  var code = document.getElementById('code').value;
-  try{eval(code); alert('App running!');} catch(e){alert('Error in app: '+e);}
-}
-function publishApp(){
-  var name = prompt('App name?');
-  if(!name) return;
-  var code = document.getElementById('code').value;
-  publicApps.push({name:name, code:code});
-  refreshApps();
-  alert('App published!');
+let offsetX,offsetY,dragged;
+function dragStart(e){dragged=e;offsetX=e.offsetX;offsetY=e.offsetY;}
+canvas.addEventListener('dragover',e=>e.preventDefault());
+canvas.addEventListener('drop',e=>{
+  if(dragged){
+    dragged.style.left=(e.offsetX-offsetX)+'px';
+    dragged.style.top=(e.offsetY-offsetY)+'px';
+    dragged=null;
+  }
+});
+
+function compileBlocks(){
+  let html='<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>';
+  canvas.querySelectorAll('.canvas-block').forEach(block=>{
+    const t=block.dataset.type;
+    switch(t){
+      case 'text': html+=`<h1>${block.querySelector('input').value}</h1>`; break;
+      case 'button':
+        const bt=block.querySelectorAll('input')[0].value;
+        const js=block.querySelectorAll('input')[1].value;
+        html+=`<button onclick='${js}'>${bt}</button>`;
+        break;
+      case 'image': html+=`<img src='${block.querySelector('input').value}'>`; break;
+      case 'script': html+=`<script>${block.querySelector('textarea').value}<\/script>`; break;
+      case 'caillou': html+=`<img src="https://i.imgur.com/RobotCaillou.png" width="64"><button onclick="alert('Beep Boop! Robot Caillou!')">Activate</button>`; break;
+    }
+  });
+  html+='</body></html>';
+  return html;
 }
 
-// --- Detect Home-Screen / Standalone ---
-function isInStandaloneMode(){
-  if(window.navigator.standalone!==undefined){return window.navigator.standalone;}
-  if(window.matchMedia){return window.matchMedia('(display-mode: standalone)').matches;}
-  return false;
-}
-if(isInStandaloneMode()){
-  document.getElementById('loader').style.display='none';
-  document.getElementById('welcome').style.display='none';
-  document.getElementById('fydiotApp').style.display='block';
-}
+document.getElementById('saveApp').onclick = ()=>{
+  const name=document.getElementById('appName').value;
+  let icon=document.getElementById('appIcon').value;
+  if(!name) { alert("Fill App Name!"); return; }
+  if(!icon) icon='favicon.ico';
+  const html=compileBlocks();
+  repo.apps.push({name,icon,html});
+  localStorage.setItem('fydiotRepo',JSON.stringify(repo));
+  renderRepo();
+  canvas.innerHTML='';
+  document.getElementById('appName').value='';
+  document.getElementById('appIcon').value='';
+};
+
+// Export/Import
+document.getElementById('exportRepo').onclick = ()=>{
+  document.getElementById('repoJSON').value = JSON.stringify(repo,null,2);
+};
+document.getElementById('importRepo').onclick = ()=>{
+  try{
+    repo = JSON.parse(document.getElementById('repoJSON').value);
+    localStorage.setItem('fydiotRepo',JSON.stringify(repo));
+    renderRepo();
+    alert("Repo Imported!");
+  }catch(e){alert("Invalid JSON!");}
+};
+
+// Add to Home Screen Tip
+window.addEventListener('load', ()=>{
+  if(!window.navigator.standalone){
+    const tip = document.getElementById('addTip');
+    tip.style.display='block';
+    let toggle = true;
+    setInterval(()=>{
+      tip.style.background = toggle ? '#ffcc00' : '#ffd633';
+      toggle = !toggle;
+    }, 1000);
+  }
+});
+
+renderRepo();
 </script>
 </body>
 </html>
